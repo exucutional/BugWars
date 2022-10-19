@@ -18,9 +18,9 @@ Game::Game()
 void Game::OnUpdate(float dt)
 {
 	PIXScopedEvent(PIX_COLOR_INDEX(5), __FUNCTION__);
-	for (auto obj : objects)
-		if (!obj->disabled)
-			obj->Update(dt);
+	for (int i = 0; i < objects.size(); i++)		// Why does range based for give dead pointer?
+		if (!objects[i]->disabled)					// And classic for loop do not?
+			objects[i]->Update(dt);
 }
 
 void Game::OnRender() const
@@ -39,4 +39,10 @@ void Game::AddObject(GameObject* object)
 
 void Game::OnBugsSpawned()
 {
+}
+
+Game::~Game()
+{
+	for (auto obj : objects)	// Fix memory leak
+		delete(obj);
 }
