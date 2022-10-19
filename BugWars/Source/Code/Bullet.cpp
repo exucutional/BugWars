@@ -6,6 +6,12 @@
 
 IMPLEMENT_RTTI(Bullet);
 
+Bullet::Bullet()
+{
+	visible = true;
+	disabled = false;
+}
+
 void Bullet::OnStart(Point)
 {
 }

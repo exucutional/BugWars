@@ -33,8 +33,8 @@ void Game::OnRender() const
 void Game::AddObject(GameObject* object)
 {
 	objects.push_back(object);
-	if (object->GetRTTI() == Bug::s_RTTI)
-		Log("I'm a bug");
+	//if (object->GetRTTI() == Bug::s_RTTI)
+		//Log("I'm a bug");
 }
 
 void Game::OnBugsSpawned()

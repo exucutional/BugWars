@@ -4,7 +4,7 @@
 struct Tank : public TankBase
 {
 	DEFINE_RTTI;
-
+	Tank();
 	virtual void OnUpdate(float dt) override;
 	// Get a bug to shoot 
 	virtual BugBase* GetBugToShoot() const override;

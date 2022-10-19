@@ -4,6 +4,12 @@
 
 IMPLEMENT_RTTI(Bug);
 
+Bug::Bug()
+{
+	visible = true;
+	disabled = false;
+}
+
 void Bug::OnUpdate(float dt)
 {
 }
