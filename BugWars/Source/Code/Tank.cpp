@@ -17,26 +17,46 @@ void Tank::OnUpdate(float dt)
 {
 }
 
-BugBase* Tank::GetBugToShoot() const
+template<typename Container>
+static void searchBugIn(Container c, const Tank* me, float* min_dist, Bug** target)
 {
-	Bug* target = nullptr;
-	float min_dist = std::numeric_limits<float>::max();
-	for (auto obj : g_Game->objects)
+	for (auto object : c)
 	{
-		if (auto bug = dynamic_cast<Bug*>(obj))
+		if (auto bug = dynamic_cast<Bug*>(object))
 		{
 			if (bug->disabled)
 				continue;
 
-			float dist = position.Distance(bug->position);
-			if (dist < min_dist)
+			float dist = me->position.Distance(bug->position);
+			if (dist == 0)	// Do not allow zero vectors
+				continue;
+
+			if (dist < *min_dist)
 			{
-				min_dist = dist;
-				target = bug;
+				*min_dist = dist;
+				*target = bug;
 			}
 		}
 	}
+}
 
+BugBase* Tank::GetBugToShoot() const
+{
+	Bug* target = nullptr;
+	float min_dist = std::numeric_limits<float>::max();
+	cell_dim_t x_cell = (cell_dim_t)position.x / g_Game->map_cell->size;
+	cell_dim_t y_cell = (cell_dim_t)position.y / g_Game->map_cell->size;
+	auto cell = g_Game->GetMapCell(x_cell, y_cell);
+	int level = 1;
+	int maxLevel = 3;
+	searchBugIn(cell->objects, this, &min_dist, &target);
+	while (!target && level <= maxLevel)
+	{
+		auto neighbours = g_Game->GetMapCellNeighbours(cell, level++);
+		for (auto cell : neighbours)
+			if (cell)
+				searchBugIn(cell->objects, this, &min_dist, &target);
+	}
 	return target;
 }
 
