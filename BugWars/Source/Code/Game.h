@@ -2,7 +2,7 @@
 #include "GameBase/GameBase.h"
 #include "Globals.h"
 
-constexpr int MapCellSize = 1024;
+constexpr int MapCellSize = 512;
 typedef long cell_dim_t;
 
 struct Tank;
@@ -26,6 +26,7 @@ struct Game : public GameBase
 
 	virtual void OnBugsSpawned() override;
 	MapCell* GetMapCell(cell_dim_t x, cell_dim_t y);
+	float GetDistToCell(Point p, MapCell* cell);
 	std::unordered_set<MapCell*> GetMapCellNeighbours(MapCell* cell, int level);
 	MapCell* TraverseMapX(MapCell* start, cell_dim_t x);
 	MapCell* TraverseMapY(MapCell* start, cell_dim_t y);

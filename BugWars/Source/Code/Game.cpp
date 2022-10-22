@@ -72,6 +72,22 @@ std::unordered_set<MapCell*> Game::GetMapCellNeighbours(MapCell* cell, int level
 	return cells;
 }
 
+float Game::GetDistToCell(Point p, MapCell* cell)
+{
+	float x = (p.x < cell->x * cell->size) ? cell->x * cell->size - p.x : p.x - (cell->x + 1) * cell->size;
+	float y = (p.y < cell->y * cell->size) ? cell->y * cell->size - p.y : p.y - (cell->y + 1) * cell->size;
+	if (x < 0.0f && y < 0.0f)
+		return 0.0f;
+
+	if (x < 0.0f)
+		return y;
+
+	if (y < 0.0f)
+		return x;
+
+	return std::min(x, y);
+}
+
 MapCell* Game::TraverseMapX(MapCell* start, cell_dim_t x)
 {
 	auto cell = start;

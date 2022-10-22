@@ -16,29 +16,29 @@ void Bug::OnUpdate(float dt)
 }
 
 template<typename Container>
-static void searchBugIn(Container c, const Bug* me, float* min_dist, Bug** target)
+static void searchBugIn(Container& c, const Bug* me, float* min_dist, Bug** target)
 {
 	for (auto object : c)
 	{
-		if (auto bug = dynamic_cast<Bug*>(object))
+		if (object->GetRTTI() == Bug::s_RTTI)
 		{
-			if (bug == me)
+			if (object == me)
 				continue;
 
-			if (bug->disabled)
+			if (object->disabled)
 				continue;
 
-			if (bug->id > me->id)
+			if (object->id > me->id)
 				continue; // Can't eat that
 
-			float dist = me->position.Distance(bug->position);
+			float dist = me->position.Distance(object->position);
 			if (dist == 0)	// Do not allow zero vectors
 				continue;
 
 			if (dist < *min_dist)
 			{
 				*min_dist = dist;
-				*target = bug;
+				*target = static_cast<Bug*>(object);
 			}
 		}
 	}
@@ -54,12 +54,14 @@ BugBase* Bug::FindBugToEat() const
 	auto cell = g_Game->GetMapCell(x_cell, y_cell);
 	int level = 1;
 	int maxLevel = 3;
-	searchBugIn(cell->objects, this, &min_dist, &target);
 	while (!target && level <= maxLevel)
 	{
+		if (level == 1)
+			searchBugIn(cell->objects, this, &min_dist, &target);
+
 		auto neighbours = g_Game->GetMapCellNeighbours(cell, level++);
 		for (auto cell : neighbours)
-			if (cell)
+			if (cell && g_Game->GetDistToCell(position, cell) < min_dist)
 				searchBugIn(cell->objects, this, &min_dist, &target);
 	}
 	return target;
