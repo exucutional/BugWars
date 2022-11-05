@@ -108,3 +108,14 @@ void GameBase::Render() const
 	OnRender();
 }
 
+void GameBase::OnBugUpdate_Begin(BugBase* bug)
+{
+	if (onBugUpdate_Begin)
+		onBugUpdate_Begin(bug);
+}
+
+void GameBase::OnBugUpdate_End(BugBase* bug)
+{
+	if (onBugUpdate_End)
+		onBugUpdate_End(bug);
+}

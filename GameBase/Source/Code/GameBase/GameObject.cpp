@@ -11,10 +11,13 @@ GameObject::GameObject()
 
 Point GameObject::GetSize() const
 {
-	return GetTexture()->size;
+	if (auto tex = GetTexture())
+		return tex->size;
+
+	return Point(64.0f, 64.0f);
 }
 
 float GameObject::GetRadius() const
 {
-	return GetSize().x / 2;
+	return GetSize().x / 2.0f;
 }

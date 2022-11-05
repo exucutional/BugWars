@@ -76,7 +76,7 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /Y $(ProjectDir)Source\Libs\Bin\*.dll $(OutDir)</Command>
+      <Command>xcopy /Y "$(ProjectDir)Source\Libs\Bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -106,7 +106,7 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /Y $(ProjectDir)Source\Libs\Bin\*.dll $(OutDir)</Command>
+      <Command>xcopy /Y "$(ProjectDir)Source\Libs\Bin\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -40,7 +40,10 @@ struct GameBase
 	virtual void OnBugsSpawned() = 0;
 	void DoRender(GameObject* object) const;
 
-	static const uint s_SpawnPeriodFrames = 200;
+	void OnBugUpdate_Begin(BugBase* bug);
+	void OnBugUpdate_End(BugBase* bug);
+
+	static const uint s_SpawnPeriodFrames = 100;
 
 	Framework* framework = nullptr;
 	std::default_random_engine rng{ 0 };
@@ -50,4 +53,7 @@ struct GameBase
 	Texture* tankTexture = nullptr;
 	Texture* bugTexture = nullptr;
 	Texture* bulletTexture = nullptr;
+
+	std::function<void(BugBase*)> onBugUpdate_Begin;
+	std::function<void(BugBase*)> onBugUpdate_End;
 };

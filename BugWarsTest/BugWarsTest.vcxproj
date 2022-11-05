@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Code\Main.cpp" />
     <ClCompile Include="Source\Code\pch.cpp" />
+    <ClCompile Include="Source\Code\TestBugsTargetSearch.cpp" />
     <ClCompile Include="Source\Code\TestTankShoot.cpp" />
   </ItemGroup>
   <ItemGroup>
