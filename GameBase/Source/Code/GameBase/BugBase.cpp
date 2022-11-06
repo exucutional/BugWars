@@ -7,8 +7,6 @@ const float BugBase::s_Velocity = 100.0f;
 
 void BugBase::Update(float dt)
 {
-	OnUpdate(dt);
-
 	g_GameBase->OnBugUpdate_Begin(this); // For testing purposes
 
 	BugBase* target = FindBugToEat();
@@ -29,6 +27,8 @@ void BugBase::Update(float dt)
 	position = position + direction * s_Velocity * dt;
 	if (direction.x != 0.0f)
 		angle = 90.0f + atan2(direction.y, direction.x) * 180.0f / std::numbers::pi_v<float>;
+
+	OnUpdate(dt);
 
 	g_GameBase->OnBugUpdate_End(this); // For testing purposes
 }
