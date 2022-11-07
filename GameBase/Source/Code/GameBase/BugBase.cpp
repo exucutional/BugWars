@@ -13,6 +13,7 @@ void BugBase::Update(float dt)
 	if (!target)
 	{
 		g_GameBase->OnBugUpdate_End(this); // For testing purposes
+		OnUpdate(dt);
 		return;
 	}
 
@@ -28,9 +29,9 @@ void BugBase::Update(float dt)
 	if (direction.x != 0.0f)
 		angle = 90.0f + atan2(direction.y, direction.x) * 180.0f / std::numbers::pi_v<float>;
 
-	OnUpdate(dt);
-
 	g_GameBase->OnBugUpdate_End(this); // For testing purposes
+
+	OnUpdate(dt);
 }
 
 Texture* BugBase::GetTexture() const

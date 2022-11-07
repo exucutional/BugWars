@@ -9,11 +9,11 @@ static const float max_corner = 6300.0f; // Should be 6400.0f but don't want to 
 TEST(DiametralBugs)
 {
 	Game game;
-	auto bug_target = new Bug;
+	auto bug_target = game.creators.bug_creator();
 	bug_target->position = Point(min_corner, min_corner);
 	game.AddObject(bug_target);
 
-	auto bug_hunter = new Bug;
+	auto bug_hunter = game.creators.bug_creator();
 	bug_hunter->position = Point(max_corner, max_corner);
 	game.AddObject(bug_hunter);
 
@@ -29,21 +29,21 @@ TEST(ChunkBordersCrossedOnUpdate)
 {
 	Game game;
 
-	auto bug_1st_target = new Bug;
+	auto bug_1st_target = game.creators.bug_creator();
 	bug_1st_target->position = Point(max_corner - 500.0f, min_corner); // top right corner, the closest target initially
 
 	// A target for reverse iteration update
-	auto bug_1st_target_r = new Bug;
+	auto bug_1st_target_r = game.creators.bug_creator();
 	bug_1st_target_r->position = Point(max_corner - 600.0f, min_corner); // top right corner, the closest target initially
 
-	auto bug_2nd_target = new Bug;
+	auto bug_2nd_target = game.creators.bug_creator();
 	bug_2nd_target->position = Point(min_corner, max_corner - 100.0f); // bottom left corner, a bit further from the hunter bug
 
 	// A target for reverse iteration update
-	auto bug_2nd_target_r = new Bug;
+	auto bug_2nd_target_r = game.creators.bug_creator();
 	bug_2nd_target_r->position = Point(min_corner, max_corner - 200.0f); // bottom left corner, a bit further from the hunter bug
 
-	auto bug_hunter = new Bug; // very hungry
+	auto bug_hunter = game.creators.bug_creator(); // very hungry
 	bug_hunter->position = Point(min_corner, min_corner);
 
 	game.AddObject(bug_1st_target);
@@ -94,6 +94,27 @@ TEST(ChunkBordersCrossedOnUpdate)
 	CHECK(target == bug_2nd_target || target == bug_2nd_target_r);
 }
 
+// A SFINAE getter which gets objects via game.GetAllObjectsCopy if there is such a method
+// ... or refers to game.objects if there is not
+// Writing it this way so they don't have to update the client code
+template<typename T>
+auto GetAllGameObjects_Impl(int, T& game, std::vector<GameObject*>& objects) -> decltype(game.GetAllObjectsCopy(), void())
+{
+	objects = game.GetAllObjectsCopy();
+}
+
+template<typename T>
+auto GetAllGameObjects_Impl(char, T& game, std::vector<GameObject*>& objects) -> decltype(game.objects, void())
+{
+	objects = game.objects;
+}
+
+template<typename T>
+void GetAllGameObjects(T& game, std::vector<GameObject*>& objects)
+{
+	GetAllGameObjects_Impl(0, game, objects);
+}
+
 void RandomTest(std::default_random_engine& rng, uint num_bugs)
 {
 	Game game;
@@ -111,7 +132,9 @@ void RandomTest(std::default_random_engine& rng, uint num_bugs)
 	{
 		Bug* target = nullptr;
 		float min_dist = std::numeric_limits<float>::max();
-		for (auto object : game.objects)
+		std::vector<GameObject*> objects_copy;
+		GetAllGameObjects(game, objects_copy);
+		for (auto object : objects_copy)
 		{
 			if (auto bug = dynamic_cast<Bug*>(object))
 			{
@@ -136,10 +159,24 @@ void RandomTest(std::default_random_engine& rng, uint num_bugs)
 		return target;
 	};
 
+	struct BugWithID
+	{
+		BugWithID() = default;
+		BugWithID(BugBase* bug_)
+			: bug(bug_)
+			, id(bug ? bug->id : 0)
+		{}
+
+		BugBase* bug = nullptr;
+		uint id = 0;
+	};
+
 	struct Prey
 	{
-		BugBase* expected = nullptr;
-		BugBase* got = nullptr;
+		uint hunter_id; // Should have been in BugWithID used as a key but then I would have to write a hashing function for the structure
+
+		BugWithID expected;
+		BugWithID got;
 	};
 	std::unordered_map<BugBase*, Prey> hunter2prey;
 
@@ -148,19 +185,20 @@ void RandomTest(std::default_random_engine& rng, uint num_bugs)
 		auto target_naive = naive_find_target(bug);
 		auto target = bug->FindBugToEat();
 
-		hunter2prey[bug] = { target_naive, target };
+		hunter2prey[bug] = { bug->id, target_naive, target };
 	};
 
+	game.OnBugsSpawned();
 	game.Update(1.0f);
 
 	for (auto&& [hunter, prey] : hunter2prey)
 	{
-		CHECK(prey.expected == prey.got);
-		if (prey.expected != prey.got)
+		CHECK(prey.expected.bug == prey.got.bug);
+		if (prey.expected.bug != prey.got.bug)
 		{
-			std::string expected_str = prey.expected ? std::format("Bug#{}", prey.expected->id) : "nullptr";
-			std::string got_str = prey.got ? std::format("Bug#{}", prey.got->id) : "nullptr";
-			Log("For Bug#{}: expected {}, got {}", hunter->id, expected_str, got_str);
+			std::string expected_str = prey.expected.bug ? std::format("Bug#{}", prey.expected.id) : "nullptr";
+			std::string got_str = prey.got.bug ? std::format("Bug#{}", prey.got.id) : "nullptr";
+			Log("For Bug#{}: expected {}, got {}", prey.hunter_id, expected_str, got_str);
 			break;
 		}
 	}
