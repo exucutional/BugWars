@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "Bug.h"
+#include "GameBase/Log.h"
 
 static const float min_corner = 100.0f; // Should be 0.0f but don't want to put things on the potential cell borders
 static const float max_corner = 6300.0f; // Should be 6400.0f but don't want to put things on the potential cell borders
