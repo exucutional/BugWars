@@ -3,8 +3,8 @@
 #include "Bug.h"
 #include "GameBase/Log.h"
 
-static const float min_corner = 100.0f; // Should be 0.0f but don't want to put things on the potential cell borders
-static const float max_corner = 6300.0f; // Should be 6400.0f but don't want to put things on the potential cell borders
+static const float min_corner = 0.0f;
+static const float max_corner = 9600.0f;
 
 TEST(DiametralBugs)
 {
@@ -121,7 +121,7 @@ void RandomTest(std::default_random_engine& rng, uint num_bugs)
 
 	for (uint i = 0; i < num_bugs; i++)
 	{
-		auto bug = new Bug;
+		auto bug = game.creators.bug_creator();
 		std::uniform_real_distribution<float> distr(min_corner, max_corner);
 
 		bug->position = Point(distr(rng), distr(rng));
